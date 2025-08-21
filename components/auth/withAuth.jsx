@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import getConfig from "../../firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import { Loader2 } from "lucide-react";
 
 const withAuth = (WrappedComponent) => {
@@ -10,12 +11,17 @@ const withAuth = (WrappedComponent) => {
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(null);
     const router = useRouter();
-    const { auth } = getConfig();
+    const { auth, db } = getConfig();
 
     useEffect(() => {
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
+      const unsubscribe = onAuthStateChanged(auth, async (user) => {
         if (user) {
-          setUser(user);
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists()) {
+            setUser({ ...user, ...userDoc.data() });
+          } else {
+            setUser(user);
+          }
         } else {
           router.push("/signin");
         }
@@ -23,7 +29,7 @@ const withAuth = (WrappedComponent) => {
       });
 
       return () => unsubscribe();
-    }, [auth, router]);
+    }, [auth, db, router]);
 
     if (loading) {
       return (

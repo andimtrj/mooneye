@@ -105,12 +105,13 @@ export default function SignUpPage() {
       await setDoc(doc(db, "users", user.uid), {
         email: form.email,
         name: form.name,
+        createdAt: new Date(),
       });
       setSuccess("Registration successful!");
       // Optionally, you can redirect after a delay
       setTimeout(() => {
         router.push("/signin");
-      }, 1500);
+      }, 500);
     } catch (err) {
       setError({ register: err.message || "Registration failed" });
     } finally {
@@ -131,6 +132,7 @@ export default function SignUpPage() {
       await setDoc(doc(db, "users", user.uid), {
         email: user.email,
         name: user.displayName,
+        createdAt: new Date(),
       });
       router.push("/signin");
     } catch (err) {
