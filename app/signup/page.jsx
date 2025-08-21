@@ -9,7 +9,14 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
-import { collection, doc, getDocs, query, setDoc, where } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDocs,
+  query,
+  setDoc,
+  where,
+} from "firebase/firestore";
 import { AlertCircleIcon, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -135,7 +142,7 @@ export default function SignUpPage() {
 
   return (
     <div className="flex flex-col w-fit gap-3">
-      <Card className="w-[80vw] lg:w-[20vw] max-w-sm">
+      <Card className="w-[90vw] lg:w-[20vw] max-w-sm">
         <CardHeader>
           <CardTitle>Sign Up</CardTitle>
         </CardHeader>
@@ -216,13 +223,19 @@ export default function SignUpPage() {
           <AlertCircleIcon />
           <AlertTitle>Unable to process your registration.</AlertTitle>
           <AlertDescription>
-            <p>Please verify information and try again.</p>
-            <ul className="list-inside list-disc text-sm">
-              {error.name && <li>{error.name}</li>}
-              {error.email && <li>{error.email}</li>}
-              {error.password && <li>{error.password}</li>}
-              {error.confirmPassword && <li>{error.confirmPassword}</li>}
-            </ul>
+            <p className="text-sm">
+              {error.email
+                ? error.email
+                : error.name
+                ? error.name
+                : error.password
+                ? error.password
+                : error.confirmPassword
+                ? error.confirmPassword
+                : error.register
+                ? error.register
+                : "Please verify information and try again."}
+            </p>
           </AlertDescription>
         </Alert>
       )}
