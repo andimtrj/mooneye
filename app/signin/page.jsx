@@ -9,70 +9,75 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
-import { ModalError } from "@/components/modalError";
-import { ModalSuccess } from "@/components/modalSuccess";
-function getCustomErrorMessage(message) {
-  if (message.includes("auth/user-not-found") || message.includes("auth/wrong-password")) {
-    return "Email or password is incorrect.";
-  }
-  if (message.includes("auth/invalid-email")) {
-    return "Email format is invalid.";
-  }
-  if (message.includes("auth/too-many-requests")) {
-    return "Too many failed attempts. Please try again later.";
-  }
-  if (message.includes("auth/invalid-credential")) {
-    return "Email or password is incorrect.";
-  }
-  return message;
-}
+import { useRouter } from "next/navigation";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { AlertCircleIcon, Loader2 } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function SignInPage() {
-  const { auth } = getConfig();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
-  const [success, setSuccess] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleChange = (event) => {
+    setForm({
+      ...form,
+      [event.target.name]: event.target.value,
+    });
+    setErrors({});
+  };
 
   // Handle sign in with email and password
   const handleSignIn = async (e) => {
     e.preventDefault();
-    setErrors({});
-    setSuccess("");
-    if (!email || !password) {
+    setSubmitted(true);
+    setIsLoading(true);
+    const { auth } = getConfig();
+
+    if (!form.email || !form.password) {
       setErrors({ login: "Email and password are required." });
-      setLoading(false);
+      setIsLoading(false);
       return;
     }
-    setLoading(true);
+
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      setSuccess("Sign in successful!");
+      await signInWithEmailAndPassword(auth, form.email, form.password);
+      router.push("/terminal");
     } catch (error) {
-  setErrors({ login: getCustomErrorMessage(error.message) || "Login failed. Please try again." });
+      if (error.code === "auth/invalid-credential") {
+        setErrors({ login: "Email or password are incorrect" });
+      } else {
+        setErrors({
+          login: error.message || "Login failed. Please try again.",
+        });
+      }
+    } finally {
+      setIsLoading(false);
     }
-    setLoading(false);
   };
 
   // Handle sign in with Google
   const handleGoogleSignIn = async () => {
     setErrors({});
-    setSuccess("");
-    setLoading(true);
+    setIsLoading(true);
+    const { auth } = getConfig();
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-      setSuccess("Sign in successful!");
+      router.push("/terminal");
     } catch (error) {
-  setErrors({ login: getCustomErrorMessage(error.message) || "Login failed. Please try again." });
+      setErrors({
+        login: error.message || "Login failed. Please try again.",
+      });
     }
-    setLoading(false);
+    setIsLoading(false);
   };
 
   return (
     <div className="flex flex-col w-fit gap-3">
-      <Card className="w-[80vw] lg:w-[20vw] max-w-sm">
+      <Card className="w-[90vw] lg:w-[20vw] max-w-sm">
         <CardHeader>
           <CardTitle>Sign In</CardTitle>
         </CardHeader>
@@ -81,38 +86,58 @@ export default function SignInPage() {
             <div className="flex flex-col gap-2">
               <Input
                 placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                name="email"
+                value={form.email}
+                onChange={handleChange}
                 type="email"
-                required
               />
               <Input
                 placeholder="Password"
+                name="password"
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
+                value={form.password}
+                onChange={handleChange}
               />
             </div>
 
             <div className="flex flex-col gap-2">
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Loading..." : "Sign In"}
+              <Button
+                className="w-full cursor-pointer"
+                type="submit"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <Loader2 className="animate-spin h-4 w-4" />
+                    Signing in...
+                  </div>
+                ) : (
+                  "Sign In"
+                )}
               </Button>
               <Button
                 variant="outline"
                 className="w-full"
+                type="button"
                 onClick={handleGoogleSignIn}
-                disabled={loading}
+                disabled={isLoading}
               >
-                {loading ? "Loading..." : "Sign In with Google"}
+                Sign In with Google
               </Button>
             </div>
           </form>
         </CardContent>
       </Card>
-      {errors.login && <ModalError title={errors.login} />}
-      {success && <ModalSuccess title={success} />}
+
+      {submitted && errors.login && (
+        <Alert variant="destructive" className="max-w-[90vw] mt-4">
+          <AlertCircleIcon />
+          <AlertTitle>Unable to sign in.</AlertTitle>
+          <AlertDescription>
+            <p>{errors.login}</p>
+          </AlertDescription>
+        </Alert>
+      )}
     </div>
   );
 }
