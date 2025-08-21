@@ -144,7 +144,7 @@ export default function SignUpPage() {
 
   return (
     <div className="flex flex-col w-fit gap-3">
-      <Card className="w-[90vw] lg:w-[20vw] max-w-sm">
+      <Card className="w-[90vw] lg:w-[25vw] max-w-sm">
         <CardHeader>
           <CardTitle>Sign Up</CardTitle>
         </CardHeader>
