@@ -1,7 +1,9 @@
-import React from 'react'
+"use client";
+import React from "react";
+import withAuth from "@/components/auth/withAuth";
 
-export default function TerminalPage() {
-  return (
-    <div>Terminal Page</div>
-  )
+function TerminalPage({ user }) {
+  return <div>Hello {user.displayName || user.email}!</div>;
 }
+
+export default withAuth(TerminalPage);
