@@ -4,7 +4,7 @@ import withAuth from "@/components/auth/withAuth";
 
 function TerminalPage({ user }) {
   return (
-    <div className="font-source-code-pro p-4">
+    <div>
       <div>Hello {user.name || user.email}!</div>
     </div>
   );
