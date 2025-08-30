@@ -14,19 +14,24 @@ function TerminalPage({ user }) {
   const [cursorVisible, setCursorVisible] = useState(true);
   const terminalRef = useRef(null);
   const { db, auth } = getConfig();
-  
+
   // Initialize terminal service
   const terminalService = useRef(null);
 
   useEffect(() => {
     // Initialize terminal service with dependencies
-    terminalService.current = new TerminalService(db, auth, user, router, setHistory);
-    
+    terminalService.current = new TerminalService(
+      db,
+      auth,
+      user,
+      router,
+      setHistory
+    );
+
     // Display welcome message
     const greeting = `
-    Welcome to MoonEye Terminal, ${user.name || user.email}!
-    Type 'help' to see available commands.
-    `;
+    Welcome to Mooneye Terminal (still in development), ${user.name || user.email}!
+    Type 'help' to see available commands.`;
     setHistory([{ type: "system", text: greeting }]);
   }, [db, auth, user, router]);
 
@@ -71,11 +76,11 @@ function TerminalPage({ user }) {
         className="flex-1 overflow-y-auto whitespace-pre-wrap"
       >
         <TerminalHistory history={history} />
-        <TerminalInput 
-          input={input} 
-          cursorVisible={cursorVisible} 
-          handleInputChange={handleInputChange} 
-          handleSubmit={handleSubmit} 
+        <TerminalInput
+          input={input}
+          cursorVisible={cursorVisible}
+          handleInputChange={handleInputChange}
+          handleSubmit={handleSubmit}
         />
       </div>
     </div>
