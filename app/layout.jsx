@@ -14,7 +14,7 @@ const sourceCodePro = Source_Code_Pro({
 });
 
 export const metadata = {
-  title: "MoonEye",
+  title: "Mooneye",
   description: "Terminal-based Money Management",
 };
 
