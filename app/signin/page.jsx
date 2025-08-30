@@ -10,7 +10,7 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { AlertCircleIcon, Loader2 } from "lucide-react";
+import { AlertCircleIcon, Link, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function SignInPage() {
@@ -127,6 +127,16 @@ export default function SignInPage() {
           </form>
         </CardContent>
       </Card>
+
+      <p className="text-center text-sm">
+        Don't have an account?{" "}
+        <a
+          className="text-blue-500 hover:underline cursor-pointer"
+          onClick={() => router.push("/signup")}
+        >
+          Sign up here
+        </a>
+      </p>
 
       {submitted && errors.login && (
         <Alert variant="destructive" className="max-w-[90vw] mt-4">

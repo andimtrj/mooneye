@@ -220,6 +220,17 @@ export default function SignUpPage() {
           </form>
         </CardContent>
       </Card>
+
+      <p className="text-center text-sm">
+        Already have an account?{" "}
+        <a
+          className="text-blue-500 hover:underline cursor-pointer"
+          onClick={() => router.push("/signin")}
+        >
+          Sign in here
+        </a>
+      </p>
+
       {submitted && Object.values(error).some((e) => e) && (
         <Alert variant="destructive" className="w-full">
           <AlertCircleIcon />
